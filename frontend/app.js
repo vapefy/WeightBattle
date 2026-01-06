@@ -533,47 +533,160 @@ function renderUserSelect() {
 function selectUser(userId) {
     state.selectedUserId = userId;
     renderUserSelect();
-    document.getElementById('weight-input').value = 900;
-    document.getElementById('weight-value').textContent = '90.0';
+    setPickerValue(90, 0);
     document.getElementById('preview').classList.add('hidden');
     updateSaveButton();
-    updatePreview();
+    setTimeout(() => updatePreview(), 100);
 }
 
 function initWeighInForm() {
-    const weightInput = document.getElementById('weight-input');
     const saveBtn = document.getElementById('save-weight');
 
-    // Update display and preview on slider change
-    let debounceTimer;
-    weightInput.addEventListener('input', () => {
-        updateWeightDisplay();
-        clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(() => updatePreview(), 150);
-        updateSaveButton();
-    });
+    // Initialize picker wheels
+    initWeightPicker();
 
     // Save button
     saveBtn.addEventListener('click', saveWeighIn);
 }
 
-function updateWeightDisplay() {
-    const slider = document.getElementById('weight-input');
-    const display = document.getElementById('weight-value');
-    const weight = (parseInt(slider.value) / 10).toFixed(1);
-    display.textContent = weight;
+function initWeightPicker() {
+    const mainColumn = document.getElementById('picker-main');
+    const decimalColumn = document.getElementById('picker-decimal');
+
+    // Generate main numbers (50-150)
+    mainColumn.innerHTML = '';
+    // Add padding items at start
+    for (let i = 0; i < 2; i++) {
+        const padding = document.createElement('div');
+        padding.className = 'picker-item picker-padding';
+        mainColumn.appendChild(padding);
+    }
+    for (let i = 50; i <= 150; i++) {
+        const item = document.createElement('div');
+        item.className = 'picker-item';
+        item.dataset.value = i;
+        item.textContent = i;
+        item.addEventListener('click', () => scrollToItem(mainColumn, i - 50));
+        mainColumn.appendChild(item);
+    }
+    // Add padding items at end
+    for (let i = 0; i < 2; i++) {
+        const padding = document.createElement('div');
+        padding.className = 'picker-item picker-padding';
+        mainColumn.appendChild(padding);
+    }
+
+    // Generate decimal numbers (0-9)
+    decimalColumn.innerHTML = '';
+    // Add padding items at start
+    for (let i = 0; i < 2; i++) {
+        const padding = document.createElement('div');
+        padding.className = 'picker-item picker-padding';
+        decimalColumn.appendChild(padding);
+    }
+    for (let i = 0; i <= 9; i++) {
+        const item = document.createElement('div');
+        item.className = 'picker-item';
+        item.dataset.value = i;
+        item.textContent = i;
+        item.addEventListener('click', () => scrollToItem(decimalColumn, i));
+        decimalColumn.appendChild(item);
+    }
+    // Add padding items at end
+    for (let i = 0; i < 2; i++) {
+        const padding = document.createElement('div');
+        padding.className = 'picker-item picker-padding';
+        decimalColumn.appendChild(padding);
+    }
+
+    // Add scroll listeners
+    let debounceTimer;
+    const handleScroll = () => {
+        updatePickerSelection();
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => {
+            snapToNearest(mainColumn);
+            snapToNearest(decimalColumn);
+            updatePreview();
+            updateSaveButton();
+        }, 100);
+    };
+
+    mainColumn.addEventListener('scroll', handleScroll);
+    decimalColumn.addEventListener('scroll', handleScroll);
+
+    // Set initial position (90.0 kg)
+    setPickerValue(90, 0);
 }
 
-function getSliderWeight() {
-    const slider = document.getElementById('weight-input');
-    return parseInt(slider.value) / 10;
+function scrollToItem(column, index) {
+    const itemHeight = 40;
+    column.scrollTo({
+        top: index * itemHeight,
+        behavior: 'smooth'
+    });
+}
+
+function snapToNearest(column) {
+    const itemHeight = 40;
+    const scrollTop = column.scrollTop;
+    const nearestIndex = Math.round(scrollTop / itemHeight);
+    column.scrollTo({
+        top: nearestIndex * itemHeight,
+        behavior: 'smooth'
+    });
+}
+
+function updatePickerSelection() {
+    const mainColumn = document.getElementById('picker-main');
+    const decimalColumn = document.getElementById('picker-decimal');
+    const itemHeight = 40;
+
+    // Update main column
+    const mainIndex = Math.round(mainColumn.scrollTop / itemHeight);
+    mainColumn.querySelectorAll('.picker-item:not(.picker-padding)').forEach((item, i) => {
+        item.classList.toggle('selected', i === mainIndex);
+    });
+
+    // Update decimal column
+    const decimalIndex = Math.round(decimalColumn.scrollTop / itemHeight);
+    decimalColumn.querySelectorAll('.picker-item:not(.picker-padding)').forEach((item, i) => {
+        item.classList.toggle('selected', i === decimalIndex);
+    });
+}
+
+function getPickerWeight() {
+    const mainColumn = document.getElementById('picker-main');
+    const decimalColumn = document.getElementById('picker-decimal');
+    const itemHeight = 40;
+
+    const mainValue = Math.round(mainColumn.scrollTop / itemHeight) + 50;
+    const decimalValue = Math.round(decimalColumn.scrollTop / itemHeight);
+
+    return mainValue + (decimalValue / 10);
+}
+
+function setPickerValue(main, decimal) {
+    const mainColumn = document.getElementById('picker-main');
+    const decimalColumn = document.getElementById('picker-decimal');
+    const itemHeight = 40;
+
+    // Clamp values
+    main = Math.max(50, Math.min(150, main));
+    decimal = Math.max(0, Math.min(9, decimal));
+
+    mainColumn.scrollTop = (main - 50) * itemHeight;
+    decimalColumn.scrollTop = decimal * itemHeight;
+
+    // Update selection after a short delay
+    setTimeout(updatePickerSelection, 50);
 }
 
 async function updatePreview() {
-    const weight = getSliderWeight();
+    const weight = getPickerWeight();
     const previewEl = document.getElementById('preview');
 
-    if (!state.selectedUserId || isNaN(weight) || weight < 70) {
+    if (!state.selectedUserId || isNaN(weight) || weight < 50) {
         previewEl.classList.add('hidden');
         return;
     }
@@ -594,13 +707,13 @@ async function updatePreview() {
 }
 
 function updateSaveButton() {
-    const weight = getSliderWeight();
+    const weight = getPickerWeight();
     const saveBtn = document.getElementById('save-weight');
-    saveBtn.disabled = !state.selectedUserId || isNaN(weight) || weight < 70 || weight > 150;
+    saveBtn.disabled = !state.selectedUserId || isNaN(weight) || weight < 50 || weight > 150;
 }
 
 async function saveWeighIn() {
-    const weight = getSliderWeight();
+    const weight = getPickerWeight();
 
     if (!state.selectedUserId || isNaN(weight)) {
         return;
@@ -618,8 +731,7 @@ async function saveWeighIn() {
         showToast(`Gespeichert: ${formatPercent(result.percent_change)}`, 'success');
 
         // Reset form
-        document.getElementById('weight-input').value = 900;
-        document.getElementById('weight-value').textContent = '--';
+        setPickerValue(90, 0);
         document.getElementById('preview').classList.add('hidden');
         state.selectedUserId = null;
         renderUserSelect();
