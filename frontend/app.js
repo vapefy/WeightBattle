@@ -168,12 +168,12 @@ async function startBattle() {
     }
 
     if (isNaN(potAmount) || potAmount < 1) {
-        showToast('Bitte gultigen Einsatz eingeben', 'error');
+        showToast('Bitte gültigen Einsatz eingeben', 'error');
         return;
     }
 
     if (isNaN(totalAmount) || totalAmount < 10) {
-        showToast('Bitte gultige Gesamtsumme eingeben', 'error');
+        showToast('Bitte gültige Gesamtsumme eingeben', 'error');
         return;
     }
 
@@ -191,7 +191,7 @@ async function startBattle() {
         }
 
         if (isNaN(weight) || weight < 30 || weight > 300) {
-            showToast(`Bitte gultiges Gewicht fur ${name} eingeben`, 'error');
+            showToast(`Bitte gültiges Gewicht für ${name} eingeben`, 'error');
             return;
         }
 
@@ -309,7 +309,7 @@ function renderDashboard(overview, potInfo) {
         standingsEl.innerHTML = sorted.map(item => `
             <div class="standing-item">
                 <span class="standing-name">${item.name}</span>
-                <span class="standing-change ${item.total_percent_change >= 0 ? 'positive' : 'negative'}">
+                <span class="standing-change ${isGoodChange(item.total_percent_change) ? 'positive' : 'negative'}">
                     ${formatPercent(item.total_percent_change)}
                 </span>
             </div>
@@ -698,7 +698,7 @@ async function updatePreview() {
 
         const changeEl = document.getElementById('preview-change');
         changeEl.textContent = formatPercent(preview.percent_change);
-        changeEl.className = preview.percent_change >= 0 ? 'positive' : 'negative';
+        changeEl.className = isGoodChange(preview.percent_change) ? 'positive' : 'negative';
 
         previewEl.classList.remove('hidden');
     } catch (error) {
@@ -810,15 +810,17 @@ function renderProgressChart(progress) {
     });
     const weeks = Array.from(allWeeks).sort();
 
-    // Build datasets - convert to "% lost" (100 - relative value)
-    // So 96.5% of start weight = 3.5% lost
+    // Build datasets - show weight change as inverted percentage
+    // Negative = weight loss (good), Positive = weight gain (bad)
     const colors = ['#4299e1', '#48bb78', '#ed8936', '#f56565', '#9f7aea', '#38b2ac', '#d69e2e'];
     const datasets = progress.progress_data.map((user, index) => {
         const dataMap = new Map();
         user.data.forEach(p => {
             if (p.week !== 'Start') {
-                // Convert to percentage lost (higher = better)
-                dataMap.set(p.week, 100 - p.value);
+                // p.value is % of start weight (e.g., 96.5 = lost 3.5%)
+                // We want: negative for loss, positive for gain
+                // So: 96.5 - 100 = -3.5% (lost), 102 - 100 = +2% (gained)
+                dataMap.set(p.week, p.value - 100);
             }
         });
 
@@ -831,7 +833,7 @@ function renderProgressChart(progress) {
             borderColor: colors[index % colors.length],
             backgroundColor: colors[index % colors.length] + '40',
             tension: 0.3,
-            fill: true,
+            fill: false,
             pointRadius: 4,
             pointHoverRadius: 6,
         };
@@ -850,10 +852,10 @@ function renderProgressChart(progress) {
                 y: {
                     title: {
                         display: true,
-                        text: '% abgenommen',
+                        text: 'Gewichtsänderung %',
                     },
-                    beginAtZero: true,
-                    suggestedMax: 10,
+                    suggestedMin: -10,
+                    suggestedMax: 5,
                 },
             },
             plugins: {
@@ -863,7 +865,13 @@ function renderProgressChart(progress) {
                 tooltip: {
                     callbacks: {
                         label: function(context) {
-                            return `${context.dataset.label}: ${context.parsed.y.toFixed(1)}% abgenommen`;
+                            const val = context.parsed.y;
+                            if (val < 0) {
+                                return `${context.dataset.label}: ${val.toFixed(1)}% (abgenommen)`;
+                            } else if (val > 0) {
+                                return `${context.dataset.label}: +${val.toFixed(1)}% (zugenommen)`;
+                            }
+                            return `${context.dataset.label}: 0%`;
                         }
                     }
                 }
@@ -993,8 +1001,15 @@ function showToast(message, type = 'info') {
 
 function formatPercent(value) {
     if (value === null || value === undefined) return '--%';
-    const sign = value >= 0 ? '+' : '';
-    return `${sign}${value.toFixed(2)}%`;
+    // Invert: weight loss (positive change) shows as negative, weight gain shows as positive
+    const inverted = -value;
+    const sign = inverted >= 0 ? '+' : '';
+    return `${sign}${inverted.toFixed(2)}%`;
+}
+
+// Helper to check if original value is good (weight loss = positive original value)
+function isGoodChange(value) {
+    return value >= 0;
 }
 
 function formatDate(dateStr) {
