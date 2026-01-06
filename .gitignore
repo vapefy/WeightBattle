@@ -1,0 +1,145 @@
+# ===========================
+# Python
+# ===========================
+
+# Bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Distribution / Packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environments
+venv/
+.venv/
+ENV/
+env/
+.env/
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# pytest
+.pytest_cache/
+.coverage
+htmlcov/
+
+# mypy
+.mypy_cache/
+
+# ===========================
+# Database
+# ===========================
+
+*.sqlite
+*.sqlite3
+*.db
+*.db-journal
+*.sqlite-wal
+*.sqlite-shm
+
+# ===========================
+# IDE / Editors
+# ===========================
+
+# VS Code
+.vscode/
+
+# JetBrains (PyCharm, IntelliJ, etc.)
+.idea/
+*.iml
+
+# Vim
+*.swp
+*.swo
+*~
+
+# Emacs
+*~
+\#*\#
+.#*
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# ===========================
+# OS Files
+# ===========================
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux
+*~
+
+# ===========================
+# Environment / Secrets
+# ===========================
+
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+secrets.json
+credentials.json
+
+# ===========================
+# Logs
+# ===========================
+
+*.log
+logs/
+npm-debug.log*
+
+# ===========================
+# Claude Code
+# ===========================
+
+.claude/
+CLAUDE.md
+
+# ===========================
+# Misc
+# ===========================
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+
+# Archives
+*.zip
+*.tar.gz
+*.rar

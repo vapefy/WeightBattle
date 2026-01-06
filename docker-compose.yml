@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  weightbattle:
+    build: .
+    container_name: weightbattle
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_PATH=/data/db.sqlite
+    volumes:
+      - weightbattle_data:/data
+    restart: unless-stopped
+
+volumes:
+  weightbattle_data:

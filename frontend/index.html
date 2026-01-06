@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weight Battle</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="app">
+        <!-- Navigation (hidden during setup) -->
+        <nav class="nav" id="main-nav">
+            <button class="nav-btn active" data-screen="dashboard">Dashboard</button>
+            <button class="nav-btn" data-screen="weigh-in">Wiegen</button>
+            <button class="nav-btn" data-screen="stats">Statistik</button>
+        </nav>
+
+        <!-- Setup Screen (shown on first launch) -->
+        <main id="setup" class="screen">
+            <header class="header">
+                <h1>Weight Battle</h1>
+                <p class="setup-subtitle">Willkommen! Richte deinen Wettbewerb ein.</p>
+            </header>
+
+            <!-- Battle Settings -->
+            <section class="card">
+                <h2>Einstellungen</h2>
+                <div class="form-group">
+                    <label for="setup-end-date">Enddatum</label>
+                    <input type="date"
+                           id="setup-end-date"
+                           class="form-input">
+                </div>
+                <div class="form-group">
+                    <label for="setup-pot-amount">Einsatz pro Verlierer/Woche</label>
+                    <div class="input-with-suffix">
+                        <input type="number"
+                               id="setup-pot-amount"
+                               value="5"
+                               min="1"
+                               max="100"
+                               class="form-input">
+                        <span class="input-suffix">EUR</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="setup-total-amount">Gesamtsumme (z.B. fuer Essen)</label>
+                    <div class="input-with-suffix">
+                        <input type="number"
+                               id="setup-total-amount"
+                               value="100"
+                               min="10"
+                               max="1000"
+                               class="form-input">
+                        <span class="input-suffix">EUR</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Participants -->
+            <section class="card">
+                <h2>Teilnehmer</h2>
+                <div id="setup-participants" class="setup-participants">
+                    <!-- Participant rows added dynamically -->
+                </div>
+                <button id="add-participant" class="btn-secondary" style="margin-top: var(--space-md);">
+                    + Teilnehmer hinzufugen
+                </button>
+            </section>
+
+            <!-- Start Button -->
+            <button id="start-battle" class="btn-primary btn-large">
+                Battle starten
+            </button>
+        </main>
+
+        <!-- Dashboard Screen -->
+        <main id="dashboard" class="screen active">
+            <header class="header">
+                <h1>Weight Battle</h1>
+                <div class="battle-info">
+                    <span id="days-remaining">-- Tage</span>
+                </div>
+            </header>
+
+            <!-- Total Progress Card -->
+            <section class="card">
+                <h2>Gesamtfortschritt</h2>
+                <p class="week-date" id="progress-period">--</p>
+                <div id="total-standings" class="standings-list">
+                    <!-- Populated by JS -->
+                </div>
+            </section>
+
+            <!-- Leader Card -->
+            <section class="card highlight">
+                <h2>Aktuelle Fuhrung</h2>
+                <div id="leader-info" class="leader-info">
+                    <span class="leader-name">--</span>
+                    <span class="leader-wins">-- Siege</span>
+                </div>
+            </section>
+
+            <!-- POT Card -->
+            <section class="card">
+                <h2>Topf</h2>
+                <div class="pot-display">
+                    <span class="pot-amount" id="pot-total">0</span>
+                    <span class="pot-currency">EUR</span>
+                </div>
+                <div id="recent-contributions" class="recent-contributions">
+                    <!-- Populated by JS -->
+                </div>
+            </section>
+
+            <!-- Weight Chart -->
+            <section class="card">
+                <h2>Gewichtsverlauf</h2>
+                <div id="weight-player-buttons" class="player-buttons">
+                    <!-- Populated by JS -->
+                </div>
+                <div class="chart-container">
+                    <canvas id="weight-chart"></canvas>
+                </div>
+            </section>
+        </main>
+
+        <!-- Weigh-in Screen -->
+        <main id="weigh-in" class="screen">
+            <header class="header">
+                <h1>Wiegen</h1>
+            </header>
+
+            <!-- User Selection -->
+            <section class="card">
+                <h2>Teilnehmer</h2>
+                <div id="user-select" class="user-select">
+                    <!-- Populated by JS -->
+                </div>
+            </section>
+
+            <!-- Weight Input -->
+            <section class="card" id="weight-input-section">
+                <h2>Gewicht eingeben</h2>
+                <div class="weight-input-container">
+                    <input type="number"
+                           id="weight-input"
+                           class="weight-input"
+                           placeholder="0.0"
+                           step="0.1"
+                           min="30"
+                           max="300">
+                    <span class="weight-unit">kg</span>
+                </div>
+
+                <!-- Live Preview -->
+                <div id="preview" class="preview hidden">
+                    <div class="preview-row">
+                        <span>Vorherige Woche:</span>
+                        <span id="preview-previous">-- kg</span>
+                    </div>
+                    <div class="preview-row highlight">
+                        <span>Veranderung:</span>
+                        <span id="preview-change">--%</span>
+                    </div>
+                </div>
+
+                <button id="save-weight" class="btn-primary" disabled>
+                    Speichern
+                </button>
+            </section>
+
+        </main>
+
+        <!-- Statistics Screen -->
+        <main id="stats" class="screen">
+            <header class="header">
+                <h1>Statistik</h1>
+            </header>
+
+            <!-- Leaderboard -->
+            <section class="card">
+                <h2>Rangliste</h2>
+                <div id="leaderboard" class="leaderboard">
+                    <!-- Populated by JS -->
+                </div>
+            </section>
+
+            <!-- Progress Chart -->
+            <section class="card">
+                <h2>Abgenommen in %</h2>
+                <p class="chart-subtitle">Prozent vom Startgewicht verloren</p>
+                <div class="chart-container">
+                    <canvas id="progress-chart"></canvas>
+                </div>
+            </section>
+
+            <!-- Prognosis -->
+            <section class="card">
+                <h2>Prognose bis Ende</h2>
+                <div id="prognosis" class="prognosis">
+                    <!-- Populated by JS -->
+                </div>
+            </section>
+
+            <!-- POT Details -->
+            <section class="card">
+                <h2>Topf-Details</h2>
+                <div id="pot-details" class="pot-details">
+                    <!-- Populated by JS -->
+                </div>
+            </section>
+
+            <!-- Audit Log -->
+            <section class="card">
+                <h2>Anderungsverlauf</h2>
+                <div id="audit-log" class="audit-log">
+                    <!-- Populated by JS -->
+                </div>
+            </section>
+        </main>
+
+        <!-- Toast Notifications -->
+        <div id="toast" class="toast hidden"></div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
