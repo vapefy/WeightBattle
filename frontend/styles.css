@@ -674,6 +674,19 @@ body {
     margin-top: var(--space-sm);
 }
 
+.demo-section {
+    margin-top: var(--space-xl);
+    padding-top: var(--space-lg);
+    border-top: 1px solid var(--color-border);
+    text-align: center;
+}
+
+.demo-text {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+    margin-bottom: var(--space-md);
+}
+
 .form-group label {
     display: block;
     font-size: var(--font-size-sm);

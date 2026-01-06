@@ -159,6 +159,72 @@ def update_config(config: ConfigUpdate):
     return get_config()
 
 
+@app.post("/setup/demo")
+def load_demo_data():
+    """Load demo data for testing purposes."""
+    from datetime import timedelta
+
+    # Check if already set up
+    if models.is_setup_complete():
+        raise HTTPException(status_code=400, detail="Setup wurde bereits abgeschlossen")
+
+    # Demo participants with realistic starting weights
+    participants = [
+        ("Papa", 98.5),
+        ("Mama", 72.3),
+        ("Max", 88.0),
+        ("Lisa", 65.8),
+    ]
+
+    # Weight change patterns (weekly kg change)
+    patterns = {
+        "Papa": [-0.8, -0.5, -0.3, +0.2, -0.6, -0.4, -0.7, -0.5],
+        "Mama": [-0.4, -0.3, -0.5, -0.2, -0.4, -0.3, -0.2, -0.4],
+        "Max":  [-1.0, -0.8, +0.5, -0.6, -0.9, +0.3, -0.7, -0.8],
+        "Lisa": [-0.3, -0.4, -0.2, -0.3, -0.5, -0.3, -0.4, -0.3],
+    }
+
+    # Set config
+    models.set_config("pot_contribution", "5")
+    models.set_config("total_amount", "100")
+    models.set_config("battle_end_date", "2026-04-05")
+
+    # Create users
+    users = {}
+    for name, start_weight in participants:
+        user = crud.create_user(name, start_weight, created_by="demo")
+        users[name] = user
+
+    # Generate weigh-ins for the past 8 weeks
+    today = date.today()
+    start_date = crud.get_week_start(today - timedelta(weeks=8))
+
+    for week_num in range(8):
+        week_start = start_date + timedelta(weeks=week_num)
+
+        for name, (_, start_weight) in zip(users.keys(), participants):
+            user = users[name]
+            total_change = sum(patterns[name][:week_num + 1])
+            weight = round(start_weight + total_change, 1)
+
+            crud.create_weigh_in(
+                user_id=user["id"],
+                weight=weight,
+                week_start=week_start,
+                created_by=name
+            )
+
+    # Mark setup as complete
+    models.set_config("setup_complete", "true")
+
+    return {
+        "success": True,
+        "message": "Demo-Daten wurden geladen",
+        "participants": len(participants),
+        "weeks": 8,
+    }
+
+
 # ============================================================================
 # User Endpoints
 # ============================================================================

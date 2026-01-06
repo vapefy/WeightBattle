@@ -97,6 +97,23 @@ function initSetup() {
 
     // Start battle button
     document.getElementById('start-battle').addEventListener('click', startBattle);
+
+    // Load demo data button
+    document.getElementById('load-demo-data').addEventListener('click', loadDemoData);
+}
+
+async function loadDemoData() {
+    try {
+        await api('/setup/demo', { method: 'POST' });
+
+        showToast('Demo-Daten geladen!', 'success');
+        state.setupComplete = true;
+
+        // Switch to main app
+        setTimeout(() => showMainApp(), 500);
+    } catch (error) {
+        showToast('Fehler: ' + error.message, 'error');
+    }
 }
 
 let participantCounter = 0;
