@@ -337,25 +337,71 @@ body {
 }
 
 .weight-picker {
-    position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
     height: 200px;
+    gap: 6px;
+}
+
+.picker-column-wrapper {
+    position: relative;
+    height: 100%;
     background: var(--color-bg);
     border-radius: var(--radius-lg);
     overflow: hidden;
-    gap: 4px;
+}
+
+.picker-column-wrapper::before,
+.picker-column-wrapper::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 70px;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.picker-column-wrapper::before {
+    top: 0;
+    background: linear-gradient(to bottom, var(--color-card) 0%, transparent 100%);
+}
+
+.picker-column-wrapper::after {
+    bottom: 0;
+    background: linear-gradient(to top, var(--color-card) 0%, transparent 100%);
+}
+
+.picker-highlight {
+    position: absolute;
+    left: 4px;
+    right: 4px;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 44px;
+    background: rgba(66, 153, 225, 0.15);
+    border-top: 2px solid var(--color-accent);
+    border-bottom: 2px solid var(--color-accent);
+    border-radius: var(--radius-sm);
+    pointer-events: none;
+    z-index: 1;
 }
 
 .picker-column {
     height: 100%;
     width: 70px;
     overflow-y: scroll;
+    overflow-x: hidden;
     scroll-snap-type: y mandatory;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
     -ms-overflow-style: none;
+    overscroll-behavior: contain;
+}
+
+#picker-decimal {
+    width: 50px;
 }
 
 .picker-column::-webkit-scrollbar {
@@ -373,6 +419,7 @@ body {
     scroll-snap-align: center;
     transition: color 0.15s ease, transform 0.15s ease;
     cursor: pointer;
+    user-select: none;
 }
 
 .picker-item.selected {
@@ -381,10 +428,11 @@ body {
 }
 
 .picker-separator {
-    font-size: var(--font-size-xl);
+    font-size: var(--font-size-2xl);
     font-weight: 700;
     color: var(--color-text);
     padding: 0 2px;
+    align-self: center;
 }
 
 .picker-unit {
@@ -392,21 +440,7 @@ body {
     font-weight: 500;
     color: var(--color-text-muted);
     margin-left: var(--space-sm);
-}
-
-.picker-highlight {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    width: calc(100% - 16px);
-    height: 44px;
-    background: rgba(66, 153, 225, 0.15);
-    border-top: 2px solid var(--color-accent);
-    border-bottom: 2px solid var(--color-accent);
-    border-radius: var(--radius-sm);
-    pointer-events: none;
-    z-index: 1;
+    align-self: center;
 }
 
 .preview {
