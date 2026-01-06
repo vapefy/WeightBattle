@@ -330,33 +330,76 @@ body {
     color: var(--color-accent);
 }
 
-.weight-input-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--space-sm);
+.weight-slider-container {
     margin-bottom: var(--space-lg);
 }
 
-.weight-input {
-    width: 150px;
-    padding: var(--space-md);
-    font-size: var(--font-size-2xl);
-    font-weight: 600;
-    text-align: center;
-    border: 2px solid var(--color-border);
-    border-radius: var(--radius-md);
-    outline: none;
-    transition: border-color 0.2s ease;
+.weight-display {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-md);
 }
 
-.weight-input:focus {
-    border-color: var(--color-accent);
+.weight-value {
+    font-size: var(--font-size-2xl);
+    font-weight: 700;
+    color: var(--color-accent);
 }
 
 .weight-unit {
     font-size: var(--font-size-lg);
     color: var(--color-text-muted);
+}
+
+.weight-slider {
+    width: 100%;
+    height: 40px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent;
+    cursor: pointer;
+}
+
+.weight-slider::-webkit-slider-runnable-track {
+    height: 8px;
+    background: var(--color-border);
+    border-radius: 4px;
+}
+
+.weight-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 28px;
+    height: 28px;
+    background: var(--color-accent);
+    border-radius: 50%;
+    margin-top: -10px;
+    box-shadow: var(--shadow-md);
+}
+
+.weight-slider::-moz-range-track {
+    height: 8px;
+    background: var(--color-border);
+    border-radius: 4px;
+}
+
+.weight-slider::-moz-range-thumb {
+    width: 28px;
+    height: 28px;
+    background: var(--color-accent);
+    border-radius: 50%;
+    border: none;
+    box-shadow: var(--shadow-md);
+}
+
+.slider-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+    margin-top: var(--space-xs);
 }
 
 .preview {
@@ -707,6 +750,10 @@ body {
 
 .form-input:focus {
     border-color: var(--color-accent);
+}
+
+.form-input[type="date"] {
+    max-width: 200px;
 }
 
 .input-with-suffix {

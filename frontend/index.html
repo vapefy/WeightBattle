@@ -151,15 +151,22 @@
             <!-- Weight Input -->
             <section class="card" id="weight-input-section">
                 <h2>Gewicht eingeben</h2>
-                <div class="weight-input-container">
-                    <input type="number"
+                <div class="weight-slider-container">
+                    <div class="weight-display">
+                        <span id="weight-value" class="weight-value">--</span>
+                        <span class="weight-unit">kg</span>
+                    </div>
+                    <input type="range"
                            id="weight-input"
-                           class="weight-input"
-                           placeholder="0.0"
-                           step="0.1"
-                           min="30"
-                           max="300">
-                    <span class="weight-unit">kg</span>
+                           class="weight-slider"
+                           min="700"
+                           max="1500"
+                           value="900"
+                           step="1">
+                    <div class="slider-labels">
+                        <span>70 kg</span>
+                        <span>150 kg</span>
+                    </div>
                 </div>
 
                 <!-- Live Preview -->

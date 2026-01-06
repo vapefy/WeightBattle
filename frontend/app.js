@@ -533,20 +533,23 @@ function renderUserSelect() {
 function selectUser(userId) {
     state.selectedUserId = userId;
     renderUserSelect();
-    document.getElementById('weight-input').value = '';
+    document.getElementById('weight-input').value = 900;
+    document.getElementById('weight-value').textContent = '90.0';
     document.getElementById('preview').classList.add('hidden');
     updateSaveButton();
+    updatePreview();
 }
 
 function initWeighInForm() {
     const weightInput = document.getElementById('weight-input');
     const saveBtn = document.getElementById('save-weight');
 
-    // Live preview on input
+    // Update display and preview on slider change
     let debounceTimer;
     weightInput.addEventListener('input', () => {
+        updateWeightDisplay();
         clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(() => updatePreview(), 300);
+        debounceTimer = setTimeout(() => updatePreview(), 150);
         updateSaveButton();
     });
 
@@ -554,11 +557,23 @@ function initWeighInForm() {
     saveBtn.addEventListener('click', saveWeighIn);
 }
 
+function updateWeightDisplay() {
+    const slider = document.getElementById('weight-input');
+    const display = document.getElementById('weight-value');
+    const weight = (parseInt(slider.value) / 10).toFixed(1);
+    display.textContent = weight;
+}
+
+function getSliderWeight() {
+    const slider = document.getElementById('weight-input');
+    return parseInt(slider.value) / 10;
+}
+
 async function updatePreview() {
-    const weight = parseFloat(document.getElementById('weight-input').value);
+    const weight = getSliderWeight();
     const previewEl = document.getElementById('preview');
 
-    if (!state.selectedUserId || isNaN(weight) || weight < 30) {
+    if (!state.selectedUserId || isNaN(weight) || weight < 70) {
         previewEl.classList.add('hidden');
         return;
     }
@@ -579,13 +594,13 @@ async function updatePreview() {
 }
 
 function updateSaveButton() {
-    const weight = parseFloat(document.getElementById('weight-input').value);
+    const weight = getSliderWeight();
     const saveBtn = document.getElementById('save-weight');
-    saveBtn.disabled = !state.selectedUserId || isNaN(weight) || weight < 30 || weight > 300;
+    saveBtn.disabled = !state.selectedUserId || isNaN(weight) || weight < 70 || weight > 150;
 }
 
 async function saveWeighIn() {
-    const weight = parseFloat(document.getElementById('weight-input').value);
+    const weight = getSliderWeight();
 
     if (!state.selectedUserId || isNaN(weight)) {
         return;
@@ -603,7 +618,8 @@ async function saveWeighIn() {
         showToast(`Gespeichert: ${formatPercent(result.percent_change)}`, 'success');
 
         // Reset form
-        document.getElementById('weight-input').value = '';
+        document.getElementById('weight-input').value = 900;
+        document.getElementById('weight-value').textContent = '--';
         document.getElementById('preview').classList.add('hidden');
         state.selectedUserId = null;
         renderUserSelect();
